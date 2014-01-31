@@ -34,7 +34,7 @@ def get_students():
     students_by_uni = pickle.load(pkl_file)
   return students_by_uni
 
-pickle_students()
+#pickle_students()
 students_by_uni = get_students()
 
 ta_list = [
