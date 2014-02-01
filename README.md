@@ -37,8 +37,9 @@ __WARNING__: This action emails the student and CCs Paul Blaer. For their sakes,
 
 
 ###How to Generate and Send Out Grading Assignments
-Example shown in `assn1.py`
+Example shown in `hw1.py`
 - First, a template file must be created in the top-level directory of the repository with the name `hw_{hw#}_template.txt`. This file must contain 2 `%s` arguments (Python string formatting arguments) which represent, in sequence, the student's name and uni.
-- The series of commands in `assn1.py` (along with the commented-out `send_ta_assignments` function call) should be run to generate the assignments and then email them to the group.
-- To run, simple execute this script. In the case of `assn1.py`:  
-`python assn1.py`
+- The series of commands in `hw1.py` (along with the commented-out `send_ta_assignments` function call) should be run to generate the assignments and then email them to the group.
+- To run, simple execute this script. In the case of `hw1.py`:  
+`python hw1.py`
+- A list of all TAs and their assigned students called `hw_{hw_num}_assignments.txt` is generated upon running the script.

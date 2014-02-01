@@ -136,5 +136,6 @@ def send_ta_assignments(ta, hw_num):
   encode_cmd = "uuencode \"%s\" hw_%d_grading.tar.gz" % (tar_fname, hw_num)
   mail_cmd = "mail -aREPLY-TO:\"%s\" -s \"Homework %d Grading Assignments\" \"%s\"" % ("ms4249@columbia.edu", hw_num, ta.email)
   call("%s | %s" % (encode_cmd, mail_cmd), shell=True)
+  call("make clean", shell=True)
 
 
