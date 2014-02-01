@@ -75,7 +75,13 @@ def grading_assignments_random(tas, students):
   return ta_assignments
 
 
-file_template = "NAME: %s\nUNI: %s\nCOMMENTS: =====BELOW THIS LINE=====\nFINAL GRADE: \n"
+def get_file_template(hw_num):
+  with open("hw_%s_template.txt" % hw_num, "r") as file_:
+    rubric = file_.read()
+  return rubric
+
+
+#file_template = 
 to_fname = lambda uni: "".join((uni, ".txt"))
 to_tar_fname = lambda uni: "".join((uni, ".tar.gz"))
 
@@ -83,8 +89,10 @@ def generate_tar(ta, students, hw_num):
   # Will raise ValueError if hw_num is invalid
   # We use 'rm -rf' so better safe than sorry
   hw_num = int(hw_num)
+  # Will raise an error if 'hw_{num}_template.txt' is not found
+  file_template = get_file_template(hw_num)
   top_level = "hw_%d_grading" % hw_num
-  dir_names = ["to_grade", "finished", "finished_and_sent"]
+  dir_names = ["to_grade", "graded", "graded_and_sent", "send_utils"]
   grading_dirs = map(lambda name: os.path.join(top_level, name), dir_names)
   os.mkdir(top_level)
   for dir_ in grading_dirs:
@@ -94,6 +102,17 @@ def generate_tar(ta, students, hw_num):
     file_name = os.path.join(grading_dirs[0], to_fname(student.uni))
     with open(file_name, "w") as f:
       f.write(file_contents)
+  code_dir = grading_dirs[3]
+  settings_fname = os.path.join(code_dir, "settings.py")
+  with open(settings_fname, "w") as f:
+    f.write("ta_uni=\"%s\"\n" % ta.uni)
+    f.write("hw_num=%d\n" % hw_num)
+  call("cp people.py %s" % code_dir, shell=True)
+  call("cp students.pkl %s" % code_dir, shell=True)
+  init_path = os.path.join(code_dir, "__init__.py")
+  call("touch %s" % init_path, shell=True)
+  call("cp send_graded.py %s" % top_level, shell=True)
+  call("cp people_objs.py %s" % top_level, shell=True)
 
   tar_fname = to_tar_fname(ta.uni)
   call("tar -czf %s %s" % (tar_fname, top_level), shell=True)

@@ -1,18 +1,5 @@
 import pickle
-
-
-class CU_Person:
-  def __init__(self, name, uni, email):
-    self.first_name = name.split(", ")[1].split(" ", 1)[0]
-    self.name = name
-    self.uni = uni
-    self.email = email
-
-class Teacher(CU_Person):
-  pass
-
-class Student(CU_Person):
-  pass
+from people_objs import Teacher, Student
 
 def students_from_roster():
   roster_lines = open("roster_1_30.txt").read().splitlines()
@@ -30,8 +17,12 @@ def pickle_students():
 
 def get_students():
   students_by_uni = None
-  with open("students.pkl", "rb") as pkl_file:
-    students_by_uni = pickle.load(pkl_file)
+  try:
+    pkl_file = open("students.pkl", "rb")
+  except IOError:
+    pkl_file = open("send_utils/students.pkl", "rb")
+  students_by_uni = pickle.load(pkl_file)
+  pkl_file.close()
   return students_by_uni
 
 #pickle_students()
