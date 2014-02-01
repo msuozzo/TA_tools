@@ -75,13 +75,21 @@ def grading_assignments_random(tas, students):
   return ta_assignments
 
 
+def generate_assignment_summary(ta_assignments, hw_num):
+  with open("hw_%s_assignments.txt" % hw_num, "w") as f:
+    for ta_uni, student_lst in ta_assignments.iteritems():
+      f.write("TA: %s\n" % ta_uni)
+      for student in student_lst:
+        f.write("%s\n" % student.uni)
+      f.write("\n")
+
+
 def get_file_template(hw_num):
   with open("hw_%s_template.txt" % hw_num, "r") as file_:
     rubric = file_.read()
   return rubric
 
 
-#file_template = 
 to_fname = lambda uni: "".join((uni, ".txt"))
 to_tar_fname = lambda uni: "".join((uni, ".tar.gz"))
 
@@ -113,6 +121,10 @@ def generate_tar(ta, students, hw_num):
   call("touch %s" % init_path, shell=True)
   call("cp send_graded.py %s" % top_level, shell=True)
   call("cp people_objs.py %s" % top_level, shell=True)
+  assignments_path = os.path.join(top_level, "assignments.txt")
+  with open(assignments_path, "w") as f:
+    for student in students:
+      f.write("%s\n" % student.uni)
 
   tar_fname = to_tar_fname(ta.uni)
   call("tar -czf %s %s" % (tar_fname, top_level), shell=True)
