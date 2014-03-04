@@ -238,8 +238,41 @@ def get_all_submission_links(hw_num):
   authenticate()
   return get_submission_links(get_cached_hw_links(hw_num))
 
-authenticate()
 
-to_frame_short()
-to_list_view()
-print get_cached_cw_ids()
+def grade(hw_num):
+  save_button_xpath = '//*[@id="gradeForm"]/div[4]/div[1]/span/input[1]'
+  sub_button_xpath = '//*[@id="gradeForm"]/div[4]/div[1]/span/input[2]'
+  comment_iframe_xpath = '//*[@id="cke_contents_grade_submission_feedback_comment"]/iframe'
+  grade_xpath = '//*[@id="grade"]'
+
+  authenticate()
+  to_frame_short()
+  to_list_view()
+
+  lines = open("hw%d_links.txt" % hw_num, "r").read().splitlines()
+  uni_to_links = dict(map(str.split, lines))
+  current_unis = map(lambda x: x[0], get_cached_cw_ids())
+  comment_template = "Written: %d/60\nProgramming: %d/40\nTotal: %d/100\n\nComments:\n%s"
+  round_score = lambda x: int(round(float(x)))
+  with open("hw%d_grades.csv" % hw_num, "r") as csv_file:
+    for row in csv.reader(csv_file):
+      try:
+        uni, comments = row[1], row[15]
+        nums = row[16:19]
+        written, programming, total = map(round_score, nums)
+      except ValueError:
+        continue
+
+      if uni not in current_unis:
+        continue
+      if uni not in uni_to_links:
+        print "ERROR: NO LINK FOR ", uni
+      link = uni_to_links[uni]
+      br.get(uni_to_links[uni])
+      # Be absolutely sure the iframe is loaded
+      sleep(2)
+      comment = comment_template % (written, programming, total, comments)
+      get_xpath(comment_iframe_xpath).send_keys(comment)
+      get_xpath(grade_xpath).send_keys(str(total))
+      get_xpath(sub_button_xpath).click()
+
