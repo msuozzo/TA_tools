@@ -223,6 +223,5 @@ def get_all_submission_links(hw_num):
   authenticate()
   return get_submission_links(get_cached_hw_links(hw_num))
 
-#for uni, sub_links in get_all_submission_links(1):
-#  print uni
-#  print "\n".join(sub_links)
+authenticate()
+
