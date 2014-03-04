@@ -18,14 +18,7 @@ def asynch_access(func):
       hard_fails += 1
   raise RuntimeError("Failed to access ")
 
-def drop_to_terminal():
-  while True:
-    try:
-      cmd = raw_input()
-      if cmd == "LETMETOUT": break
-      exec(cmd)
-    except Exception as e:
-      print e
+get_xpath = lambda xpath: br.execute_script('return document.evaluate(\'%s\',document,null,9,null).singleNodeValue' % xpath)
 
 base_addr = "https://courseworks.columbia.edu/portal"
 to_absolute_url = lambda stub: "".join((base_addr, stub))
@@ -84,6 +77,28 @@ def to_list_view():
   allOptions = view_select.find_elements_by_tag_name("option")
   # This is the list view option
   allOptions[1].click()
+
+# Requires: Assignment Iframe
+# Populates or updates the cache of CW mappings of students to CW_IDs
+def cache_cw_ids():
+  expand_link_xpath_template = '/html/body/div/form/table/tbody/tr[%d]/td[1]/h4/a'
+  name_field_xpath_template = '/html/body/div/form/table/tbody/tr[%d]/td[1]/h4'
+  table_xpath = '/html/body/div/form/table'
+  id_regex = r'studentId=(.+?)&panel=Main'
+  num_students = len(get_xpath(table_xpath).find_elements_by_tag_name("tr")) - 1
+  with open("cw_student_ids.txt", "w") as f:
+    # Just needs to be bigger than class size
+    for i in xrange(2, num_students + 2):
+      student_iden = get_xpath(name_field_xpath_template % i).text.strip()
+      uni = student_iden.split("(")[-1].strip(")")
+      expand_link = get_xpath(expand_link_xpath_template % i).get_attribute("onclick")
+      id_ = re.findall(id_regex, expand_link)[0]
+      line = " ".join((uni, id_))
+      f.write(line)
+      # If not the last iteration, advance a line
+      if i != (num_students + 1):
+        f.write('\n')
+
 
 def get_cached_cw_ids():
   lines = open("cw_student_ids.txt", "r").read().splitlines()
@@ -225,3 +240,6 @@ def get_all_submission_links(hw_num):
 
 authenticate()
 
+to_frame_short()
+to_list_view()
+print get_cached_cw_ids()
